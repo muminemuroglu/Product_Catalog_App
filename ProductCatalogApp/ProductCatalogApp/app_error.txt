@@ -1,0 +1,4 @@
+
+[2025-05-24 02:32:39] Method: GetCategoryById, Error: Geçersiz kategori ID.
+[2025-05-24 02:33:28] Method: DeleteCategory, Error: Geçersiz kategori ID.
+[2025-05-24 02:34:35] Method: UpdateCategory, Error: Geçersiz kategori ID.
