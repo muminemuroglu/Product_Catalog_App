@@ -6,10 +6,10 @@ namespace ProductCatalogApp.Services
     {
         private readonly string _LogPath = "app_error.txt";
 
-        public void LogError(Exception ex, string methodName)
+        public void LogError(string errorMessage, string methodName)
         {
             DateTime date = DateTime.Now;
-            string logEntry = $"[{date:yyyy-MM-dd HH:mm:ss}] Method: {methodName}, Error: {ex.Message}" + Environment.NewLine;
+            string logEntry = $"[{date:yyyy-MM-dd HH:mm:ss}] Method: {methodName}, Error: {errorMessage}" + Environment.NewLine;
             File.AppendAllText(_LogPath, logEntry);
         }
 
@@ -73,11 +73,6 @@ namespace ProductCatalogApp.Services
 
             return filteredLogs;
         }
-
-
-
-
-
 
 
     }

@@ -2,3 +2,7 @@
 [2025-05-24 02:32:39] Method: GetCategoryById, Error: Geçersiz kategori ID.
 [2025-05-24 02:33:28] Method: DeleteCategory, Error: Geçersiz kategori ID.
 [2025-05-24 02:34:35] Method: UpdateCategory, Error: Geçersiz kategori ID.
+[2025-05-26 10:15:37] Method: UpdateCategory, Error: Geçersiz kategori ID.
+[2025-05-27 01:49:12] Method: GetProductById, Error: '234' is not a valid 24 digit hex string.
+[2025-05-27 01:57:45] Method: GetSearchProducts, Error: Command find failed:  invalid flag in regex options: e.
+

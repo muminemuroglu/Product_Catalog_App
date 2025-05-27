@@ -27,16 +27,15 @@ namespace ProductCatalogApp.Services
         {
             try
             {
+
                 _categoryCollection.InsertOne(category);
-                Console.WriteLine($"CategoryID:{category.Id}added successfully. ");
                 return 1;
 
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error adding category: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(AddCategory));
+                _logService.LogError(errorMsg, nameof(AddCategory));
                 return 0;
             }
 
@@ -47,30 +46,29 @@ namespace ProductCatalogApp.Services
         {
             try
             {
-                if (!ObjectId.TryParse(id, out ObjectId objectId))
+                if (string.IsNullOrEmpty(id))
                 {
-                    string errorMsg = "Geçersiz kategori ID.";
-                    Console.WriteLine(errorMsg);
-                    _logService.LogError(new Exception(errorMsg), nameof(UpdateCategory));
+                    _logService.LogError("Category update failed: ID was provided as null or empty.", nameof(UpdateCategory));
+                    return false;
+                }
+                if (category == null)
+                {
+                    _logService.LogError("Category update failed: category object is null.", nameof(UpdateCategory));
                     return false;
                 }
 
-
-                var filter = Builders<Category>.Filter.Eq(item => item.Id, category.Id);
+                category.Id = id;
+                var filter = Builders<Category>.Filter.Eq(item => item.Id, id);
                 ReplaceOneResult replaceOneResult = _categoryCollection.ReplaceOne(filter, category);
                 return replaceOneResult.MatchedCount > 0;
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error updating category: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(UpdateCategory));
+                _logService.LogError(errorMsg, nameof(UpdateCategory));
                 return false;
             }
         }
-
-
-
 
         //Girilen id' ye göre kategori silme
 
@@ -78,33 +76,19 @@ namespace ProductCatalogApp.Services
         {
             try
             {
-                if (!ObjectId.TryParse(id, out ObjectId objectId))
+                _categoryCollection.DeleteOne(category => category.Id == id);
+
+                if (_productCollection.CountDocuments(product => product.CategoryId == id) > 0)
                 {
-                    string errorMsg = "Geçersiz kategori ID.";
-                    Console.WriteLine(errorMsg);
-                    _logService.LogError(new Exception(errorMsg), nameof(DeleteCategory));
-                    return;
+                    _productCollection.DeleteMany(product => product.CategoryId == id);
+
                 }
 
-                var relatedProductCount = _productCollection.CountDocuments(p => p.CategoryId == objectId);
-                if (relatedProductCount > 0)
-                {
-                    Console.WriteLine("Bu kategoriye bağlı ürünler var. Kategori silinemez.");
-                    return;
-                }
-
-                var deleteResult = _categoryCollection.DeleteOne(x => x.Id == objectId);
-
-                if (deleteResult.DeletedCount > 0)
-                    Console.WriteLine("Kategori başarıyla silindi.");
-                else
-                    Console.WriteLine("Kategori bulunamadı.");
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error deleting category: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(DeleteCategory));
+                _logService.LogError(errorMsg, nameof(DeleteCategory));
             }
         }
 
@@ -115,25 +99,23 @@ namespace ProductCatalogApp.Services
         {
             try
             {
-                if (!ObjectId.TryParse(id, out ObjectId objectId))
+                if (string.IsNullOrEmpty(id))
                 {
-                    string errorMsg = "Geçersiz kategori ID.";
-                    Console.WriteLine(errorMsg);
-                    _logService.LogError(new Exception(errorMsg), nameof(GetCategoryById));
+                    string errorMsg = "Category ID cannot be null or empty.";
+                    _logService.LogError(errorMsg, nameof(GetCategoryById));
                     return null;
                 }
-
-                return _categoryCollection.Find(category => category.Id == objectId).FirstOrDefault();
+                return _categoryCollection
+                .Find(category => category.Id == id)
+                .FirstOrDefault();
             }
             catch (Exception ex)
             {
-                string errorMsg = $"Beklenmeyen hata oluştu: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(GetCategoryById));
+                string errorMsg = $"Error getting category by ID: {ex.Message}";
+                _logService.LogError(errorMsg, nameof(GetCategoryById));
                 return null;
             }
         }
-
 
         //Tüm kategorileri listeleyen metod
 
@@ -147,8 +129,7 @@ namespace ProductCatalogApp.Services
             catch (Exception ex)
             {
                 string errorMsg = $"Error getting all categories: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(GetAllCategories));
+                _logService.LogError(errorMsg, nameof(GetAllCategories));
                 return new List<Category>();
             }
 

@@ -24,28 +24,23 @@ namespace ProductCatalogApp.Services
         public int AddProduct(Product product)
         {
             try
-            {//Boş veya geçersiz veri kontrolü
-                if (string.IsNullOrWhiteSpace(product.Name))
-                    throw new ArgumentException("Product name cannot be empty.");
-                if (product.Price <= 0)
-                    throw new ArgumentException("Product price must be greater than zero.");
-                if (product.StockQuantity < 0)
-                    throw new ArgumentException("Product stock quantity cannot be negative.");
-
+            {
                 //KategoriId kontrolü
                 var category = _categories.Find(c => c.Id == product.CategoryId).FirstOrDefault();
                 if (category == null)
-                    throw new ArgumentException("Category not found.");
+                {
+                    string errorMsg = $"Category with ID {product.CategoryId} does not exist.";
+                    _logService.LogError(errorMsg, nameof(AddProduct));
+                    return 0;
+                }
 
                 _productCollection.InsertOne(product);
-                Console.WriteLine($"ProductID:{product.Id} added successfully.");
                 return 1;
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error adding product:{ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(AddProduct));
+                _logService.LogError(errorMsg, nameof(AddProduct));
                 return 0;
             }
 
@@ -57,6 +52,7 @@ namespace ProductCatalogApp.Services
         {
             try
             {
+
                 var filter = Builders<Product>.Filter.Eq(item => item.Id, product.Id);
                 ReplaceOneResult replaceOneResult = _productCollection.ReplaceOne(filter, product);
                 return replaceOneResult.MatchedCount > 0;
@@ -64,56 +60,53 @@ namespace ProductCatalogApp.Services
             catch (Exception ex)
             {
                 string errorMsg = $"Error updating product: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(UpdateProduct));
+                _logService.LogError(errorMsg, nameof(UpdateProduct));
                 return false;
             }
         }
 
 
-        //Id ' ye göre ürün silme
+        //Id'ye göre ürün silme
 
         public void DeleteProduct(string Id)
         {
             try
             {
-                _productCollection.DeleteOne(x => x.Id.ToString() == Id);
+
+                _productCollection.DeleteOne(product => product.Id == Id);
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error deleting product: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(DeleteProduct));
+                _logService.LogError(errorMsg, nameof(DeleteProduct));
             }
         }
 
-        // Id' sine göre ürün bilgilerini getirme
+        // Id' sine göre ürün bilgilerini getirme.
         public Product? GetProductById(string id)
         {
             try
             {
-                return _productCollection.Find(product => product.Id.ToString() == id).FirstOrDefault();
+                if (string.IsNullOrEmpty(id))
+                {
+                    string errorMsg = $"GetProductById failed: ID was provided as null or empty.";
+                    _logService.LogError(errorMsg, nameof(GetProductById));
+                    return null;
+                }
+                return _productCollection
+                    .Find(product => product.Id == id)
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error getting product by id: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(GetProductById));
+                _logService.LogError(errorMsg, nameof(GetProductById));
                 return null;
             }
         }
 
 
-        /* 
-        public Product GetProductById(string id) 
-        { 
-             var filter = Builders<Product>.Filter.Eq(p => p.Id, new ObjectId(id)); 
-             return _productCollection.Find(filter).FirstOrDefault(); 
-        }
-        */
-
-
-        //Tüm ürünleri sayfalandırarak listeyen ve son eklenenleri ilk sırada getiren metod
+        //Tüm ürünleri sayfalandırarak listeyen ve son eklenenleri ilk sırada getiren metod.
 
         public List<Product> GetProducts(int page = 1, int limit = 10)
         {
@@ -129,8 +122,7 @@ namespace ProductCatalogApp.Services
             catch (Exception ex)
             {
                 string errorMsg = $"Error getting products: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(GetProducts));
+                _logService.LogError(errorMsg, nameof(GetProducts));
                 return new List<Product>();
             }
         }
@@ -138,24 +130,21 @@ namespace ProductCatalogApp.Services
 
 
 
-
-
-        // Ürün adında veya açıklamasında anahtar kelimeyi içeren ürünleri listeler
+        // Ürün adında veya açıklamasında anahtar kelimeyi içeren ürünleri listeler.
         public List<Product> GetSearchProducts(string keyword)
         {
             try
             {
                 var filter = Builders<Product>.Filter.Or(
-                    Builders<Product>.Filter.Regex(p => p.Name, new BsonRegularExpression(keyword, "e")),
-                    Builders<Product>.Filter.Regex(p => p.Definition, new BsonRegularExpression(keyword, "e"))
+                    Builders<Product>.Filter.Regex(p => p.Name, new BsonRegularExpression(keyword, "i")), // "i" ile büyük/küçük harf duyarsızlığı sağlanıyor
+                    Builders<Product>.Filter.Regex(p => p.Definition, new BsonRegularExpression(keyword, "i"))
                 );
                 return _productCollection.Find(filter).ToList();
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error searching products: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(GetSearchProducts));
+                _logService.LogError(errorMsg, nameof(GetSearchProducts));
                 return new List<Product>();
             }
         }
@@ -186,16 +175,9 @@ namespace ProductCatalogApp.Services
             catch (Exception ex)
             {
                 string errorMsg = $"Error filtering products: {ex.Message}";
-                Console.WriteLine(errorMsg);
-                _logService.LogError(ex, nameof(FilterMetod));
+                _logService.LogError(errorMsg, nameof(FilterMetod));
                 return new List<Product>();
             }
         }
-
-
-
-
-
-
     }
 }

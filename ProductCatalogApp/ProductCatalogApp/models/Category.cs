@@ -7,22 +7,16 @@ namespace ProductCatalogApp.Models
     public class Category
     {
 
+
         public Category(string categoryName)
         {
 
             CategoryName = categoryName;
         }
 
-        public Category(string categoryName, ObjectId id)
-        {
-            Id = id;
-            CategoryName = categoryName;
-        }
-
-
-
-
-        public ObjectId Id { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
 
         [BsonElement("category_name")]
         [Required(ErrorMessage = "Category name is required.")]

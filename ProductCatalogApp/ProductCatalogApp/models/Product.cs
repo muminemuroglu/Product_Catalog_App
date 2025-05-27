@@ -8,19 +8,18 @@ namespace ProductCatalogApp.Models
     {
 
 
-        public Product(string name, decimal price, int stock_quantity, ObjectId categoryId)
+        public Product()
         {
             DateAdded = DateTime.Now;
-            Name = name;
-            Price = price;
-            StockQuantity = stock_quantity;
-            CategoryId = categoryId;
+
         }
-        public ObjectId Id { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
 
         [BsonElement("name")]
         [Required(ErrorMessage = "Name is required.")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [BsonElement("definition")]
         public string? Definition { get; set; }
@@ -35,8 +34,10 @@ namespace ProductCatalogApp.Models
         [Range(0, int.MaxValue, ErrorMessage = "Stock quantity must be a positive number.")]
         public int StockQuantity { get; set; }
 
+        [Required]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("category_id")]
-        public ObjectId CategoryId { get; set; }
+        public string? CategoryId { get; set; }
 
         [BsonElement("date_added")]
         public DateTime DateAdded { get; set; }
