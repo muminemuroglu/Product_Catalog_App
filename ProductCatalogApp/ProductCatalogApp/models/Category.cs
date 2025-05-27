@@ -8,11 +8,7 @@ namespace ProductCatalogApp.Models
     {
 
 
-        public Category(string categoryName)
-        {
 
-            CategoryName = categoryName;
-        }
 
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -20,6 +16,6 @@ namespace ProductCatalogApp.Models
 
         [BsonElement("category_name")]
         [Required(ErrorMessage = "Category name is required.")]
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
     }
 }

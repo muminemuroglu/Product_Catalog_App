@@ -83,7 +83,10 @@ namespace ProductCatalogApp
                         Console.WriteLine("Kategori adı boş olamaz.");
                         return;
                     }
-                    Category newCategory = new Category(categoryName);
+                    Category newCategory = new Category
+                    {
+                        CategoryName = categoryName
+                    };
                     int result = categoryService.AddCategory(newCategory);
                     if (result > 0)
                     {
@@ -111,7 +114,11 @@ namespace ProductCatalogApp
                         Console.WriteLine("Yeni kategori adı boş olamaz.");
                         return;
                     }
-                    Category updatedCategory = new Category(newCategoryName);
+                    Category updatedCategory = new Category
+                    {
+                        Id = id,
+                        CategoryName = newCategoryName
+                    };
                     bool updateResult = categoryService.UpdateCategory(id, updatedCategory);
                     if (updateResult)
                     {
@@ -131,9 +138,15 @@ namespace ProductCatalogApp
                         Console.WriteLine("Kategori ID'si boş olamaz.");
                         return;
                     }
-                    categoryService.DeleteCategory(deleteID);
-                    Console.WriteLine($"ID'si {deleteID} olan kategori ve o kategoriye ait ürünler başarıyla silindi.");
-
+                    bool deleteResult = categoryService.DeleteCategory(deleteID);
+                    if (deleteResult)
+                    {
+                        Console.WriteLine($"ID'si {deleteID} olan kategori ve o kategoriye ait ürünler başarıyla silindi.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Kategori silinemedi. Lütfen geçerli bir ID giriniz.");
+                    }
                     break;
                 case "4":
                     // Tüm Kategorileri Getir
@@ -304,8 +317,15 @@ namespace ProductCatalogApp
                         Console.WriteLine("Ürün ID'si boş olamaz.");
                         return;
                     }
-                    productService.DeleteProduct(deleteID);
-                    Console.WriteLine("Ürün başarıyla silindi.");
+                    bool deleteResult = productService.DeleteProduct(deleteID);
+                    if (deleteResult)
+                    {
+                        Console.WriteLine("Ürün başarıyla silindi.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ürün silinemedi. Lütfen geçerli bir ID giriniz.");
+                    }
                     break;
                 case "4":
                     // Ürün ID'sine Göre Getir

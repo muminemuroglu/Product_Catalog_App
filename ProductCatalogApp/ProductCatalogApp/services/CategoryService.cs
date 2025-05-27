@@ -57,8 +57,8 @@ namespace ProductCatalogApp.Services
                     return false;
                 }
 
-                category.Id = id;
-                var filter = Builders<Category>.Filter.Eq(item => item.Id, id);
+
+                var filter = Builders<Category>.Filter.Eq(item => item.Id, category.Id);
                 ReplaceOneResult replaceOneResult = _categoryCollection.ReplaceOne(filter, category);
                 return replaceOneResult.MatchedCount > 0;
             }
@@ -72,26 +72,38 @@ namespace ProductCatalogApp.Services
 
         //Girilen id' ye göre kategori silme
 
-        public void DeleteCategory(string id)
+        public bool DeleteCategory(string id)
         {
             try
             {
+                if (string.IsNullOrEmpty(id) || id.Length != 24)
+                {
+                    _logService.LogError("Geçersiz kategori ID formatı.", nameof(DeleteCategory));
+                    return false;
+                }
+
+                var category = _categoryCollection.Find(c => c.Id == id).FirstOrDefault();
+                if (category == null)
+                {
+                    _logService.LogError("Silinmek istenen kategori bulunamadı.", nameof(DeleteCategory));
+                    return false;
+                }
+
                 _categoryCollection.DeleteOne(category => category.Id == id);
 
                 if (_productCollection.CountDocuments(product => product.CategoryId == id) > 0)
                 {
                     _productCollection.DeleteMany(product => product.CategoryId == id);
-
                 }
-
+                return true;
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error deleting category: {ex.Message}";
                 _logService.LogError(errorMsg, nameof(DeleteCategory));
+                return false;
             }
         }
-
 
         //Belirtilen id ye göre kategori getirme
 

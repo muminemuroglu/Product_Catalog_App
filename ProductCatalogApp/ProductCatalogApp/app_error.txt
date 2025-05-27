@@ -6,3 +6,9 @@
 [2025-05-27 01:49:12] Method: GetProductById, Error: '234' is not a valid 24 digit hex string.
 [2025-05-27 01:57:45] Method: GetSearchProducts, Error: Command find failed:  invalid flag in regex options: e.
 
+[2025-05-27 14:54:05] Method: DeleteCategory, Error: Error deleting category: '3' is not a valid 24 digit hex string.
+[2025-05-27 15:03:31] Method: DeleteCategory, Error: Geçersiz kategori ID formatı.
+[2025-05-27 15:07:26] Method: DeleteCategory, Error: Geçersiz kategori ID formatı.
+[2025-05-27 15:07:41] Method: DeleteCategory, Error: Geçersiz kategori ID formatı.
+[2025-05-27 15:13:38] Method: DeleteProduct, Error: Error deleting product: '3' is not a valid 24 digit hex string.
+[2025-05-27 15:13:57] Method: DeleteProduct, Error: Geçersiz ürün ID formatı.

@@ -68,17 +68,31 @@ namespace ProductCatalogApp.Services
 
         //Id'ye göre ürün silme
 
-        public void DeleteProduct(string Id)
+        public bool DeleteProduct(string id)
         {
             try
             {
+                if (string.IsNullOrEmpty(id) || id.Length != 24)
+                {
+                    _logService.LogError("Geçersiz ürün ID formatı.", nameof(DeleteProduct));
+                    return false;
+                }
 
-                _productCollection.DeleteOne(product => product.Id == Id);
+                var product = _productCollection.Find(p => p.Id == id).FirstOrDefault();
+                if (product == null)
+                {
+                    _logService.LogError("Silinmek istenen ürün bulunamadı.", nameof(DeleteProduct));
+                    return false;
+                }
+
+                var result = _productCollection.DeleteOne(p => p.Id == id);
+                return result.DeletedCount > 0;
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error deleting product: {ex.Message}";
                 _logService.LogError(errorMsg, nameof(DeleteProduct));
+                return false;
             }
         }
 
